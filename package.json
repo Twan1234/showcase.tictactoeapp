@@ -19,7 +19,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint"
   },
   "eslintConfig": {
     "extends": [
@@ -40,6 +41,11 @@
     ]
   },
   "devDependencies": {
-    "typescript": "^5.8.2"
+    "@cypress/react": "^9.0.1",
+    "@cypress/webpack-dev-server": "^4.1.0",
+    "cypress": "^14.3.3",
+    "eslint": "^9.25.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

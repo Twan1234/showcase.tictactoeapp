@@ -14,6 +14,8 @@ const TicTacToe = ({ conn, myConnectionId, mySymbol, myTurn, roomCode }) => {
     const [showEndGameModal, setShowEndGameModal] = useState(false);
     const [gameResult, setGameResult] = useState(null);
     const [showResetConfirmation, setShowResetConfirmation] = useState(false);
+    const [showRematchConfirmation, setShowRematchConfirmation] = useState(false);
+
 
 
     let titleRef = useRef(null);
@@ -64,23 +66,29 @@ const TicTacToe = ({ conn, myConnectionId, mySymbol, myTurn, roomCode }) => {
             setShowResetConfirmation(true);
         });
 
+        conn.on("ConfirmRematchRequest", () => {
+            setShowRematchConfirmation(true);
+        });
+
         conn.on("ResetRequestRejected", () => {
             alert("Reset request was rejected");
         });
 
-        conn.on("RematchRequested", () => {
-            setShowEndGameModal(true);
-            setGameResult({ ...gameResult, rematchRequested: true });
-        });
-
-        conn.on("RematchAccepted", () => {
-            resetValues();
-            setShowEndGameModal(false);
+        conn.on("RematchRequestRejected", () => {
+            alert("Rematch request was rejected");
+            conn.stop();
+            window.location.reload();
         });
 
         conn.on("RedirectToLobby", () => {
             conn.stop();
-            window.location.reload(); // Or handle state to return to lobby
+            window.location.reload();
+        });
+
+        conn.on("RedirectToLobbyOnDisconnect", () => {
+            alert("Player has left!");
+            conn.stop();
+            window.location.reload();
         });
 
         return () => {
@@ -90,9 +98,11 @@ const TicTacToe = ({ conn, myConnectionId, mySymbol, myTurn, roomCode }) => {
             conn.off("ResetGame");
             conn.off("NotYourTurn");
             conn.off("ConfirmResetRequest");
+            conn.off("ConfirmRematchRequest");
+            conn.off("RedirectToLobbyOnDisconnect");
             conn.off("ResetRequestRejected");
-            conn.off("RematchRequested");
-            conn.off("RematchAccepted");
+            conn.off("RematchRequestRejected");
+            conn.off("RematchRejected");
             conn.off("RedirectToLobby");
         };
     }, [data, conn, myConnectionId]);
@@ -116,10 +126,10 @@ const TicTacToe = ({ conn, myConnectionId, mySymbol, myTurn, roomCode }) => {
         box_array[index].current.innerHTML = `<img src='${symbol === "x" ? cross_icon : circle_icon}'>`;
 
         if (send && conn) {
-            conn.invoke("SendMove", {
+            conn.invoke("SendMove", 
                 index,
                 symbol
-            });
+            );
         }
     };
 
@@ -131,18 +141,16 @@ const TicTacToe = ({ conn, myConnectionId, mySymbol, myTurn, roomCode }) => {
         }
     };
 
-    const handleRematch = async () => {
+    const handleRematchConfirmation = async (confirm) => {
+        setShowRematchConfirmation(false);
         if (conn && roomCode) {
-            await conn.invoke("RequestRematch", roomCode);
+            await conn.invoke("ConfirmRematch", roomCode, confirm);
+            if (confirm) resetValues();
         }
     };
 
-
-
     const toggle = (e, num) => {
         if (lock || data[num] !== "" || !myTurn) return;
-
-
 
         const symbol = mySymbol;
         updateBox(num, symbol);
@@ -155,13 +163,21 @@ const TicTacToe = ({ conn, myConnectionId, mySymbol, myTurn, roomCode }) => {
         setData(["", "", "", "", "", "", "", "", ""]);
         setWinner(null);
         updateTitle("x");
-        //titleRef.current.innerHTML = 'Tic Tac Toe';
+        setShowResetConfirmation(false);
+        setShowRematchConfirmation(false);
+        setShowEndGameModal(false);
         box_array.forEach(box => box.current.innerHTML = "");
     }
 
     const reset = () => {
         if (conn && roomCode) {
             conn.invoke("RequestReset", roomCode);
+        }
+    };
+
+    const rematch = () => {
+        if (conn && roomCode) {
+            conn.invoke("RequestRematch", roomCode);
         }
     };
 
@@ -173,9 +189,7 @@ const TicTacToe = ({ conn, myConnectionId, mySymbol, myTurn, roomCode }) => {
                     {gameResult?.status === 'draw' && "Game Draw!"}
                 </h3>
                 <button onClick={() => window.location.reload()}>Back to Lobby</button>
-                <button onClick={handleRematch}>
-                    {gameResult?.rematchRequested ? "Accept Rematch" : "Request Rematch"}
-                </button>
+                <button onClick={() => { rematch() }}>Request Rematch</button>
             </div>
         </div>
     );
@@ -190,9 +204,19 @@ const TicTacToe = ({ conn, myConnectionId, mySymbol, myTurn, roomCode }) => {
         </div>
     );
 
+    const RematchConfirmationModal = () => (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <h3>Another player wants a rematch. Accept?</h3>
+                <button onClick={() => handleRematchConfirmation(true)}>Yes</button>
+                <button onClick={() => handleRematchConfirmation(false)}>No</button>
+            </div>
+        </div>
+    );
+
     return (
         <div className="container">
-            <h1 className="title" ref={titleRef}>Tic Tac Toe</h1>
+            <h1 data-testid="cypress-title" className="title" ref={titleRef}>Tic Tac Toe</h1>
             <h2>You are Player: {mySymbol ? mySymbol.toUpperCase() : "Waiting..."}</h2>
             <div className="board">
                 <div className="row1">
@@ -214,6 +238,7 @@ const TicTacToe = ({ conn, myConnectionId, mySymbol, myTurn, roomCode }) => {
             <button className="reset" onClick={() => { reset() }}>Reset</button>
             {showEndGameModal && <EndGameModal />}
             {showResetConfirmation && <ResetConfirmationModal />}
+            {showRematchConfirmation && <RematchConfirmationModal />}
         </div>
     )
 }

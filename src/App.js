@@ -22,7 +22,7 @@ function App() {
     const joinTicTacToeGameRoom = async (ticTacToeGameRoom) => {
         try {
             // 1. Get current user
-            const res = await fetch("https://localhost:7142/api/user/me", {
+            const res = await fetch("https://localhost:7142/api/user/me", { //.
                 credentials: "include"
             });
 
@@ -54,17 +54,7 @@ function App() {
 
             conn.on("AssignSymbol", (symbol) => {
                 console.log("assignsymbol received in App.js:", symbol);
-                setMySymbol(symbol);
-                //if (symbol === "x") {
-                //    setMySymbol(symbol);
-                //    setMyTurn(true);
-                //    console.log("Player X");
-                //} else {
-                //    setMySymbol(symbol);
-                //    setMyTurn(false);
-                //    console.log("Player O");
-                //}
-                
+                setMySymbol(symbol);               
             });
 
             conn.on("RoomFull", () => {
@@ -99,27 +89,23 @@ function App() {
             
 
             conn.on("UpdateTurn", ({ connectionId: turnConnId }) => {
-                console.log("UpdateTurn received:", turnConnId);
-                console.log("Player", mySymbol);
-                console.log("turnID", turnConnId);
-                console.log("ConnID", connectionId);
-
                 setMyTurn(turnConnId === connectionId);
-
                 console.log("myTurn", myTurn);
 
             });
 
-            if (!myConnectionId) {
-                throw new Error("Connection ID is missing!");
-            }
+            //if (!myConnectionId) {
+            //    throw new Error("Connection ID is missing!");
+            //}
 
             // 6. Join the room
-            await conn.invoke("JoinSpecificTicTacToeGameRoom", {
-                username,
-                ticTacToeGameRoom,
-                myConnectionId: connectionId
-            });
+            await conn.invoke("JoinSpecificTicTacToeGameRoom", ticTacToeGameRoom, username);
+
+            //await conn.invoke("JoinSpecificTicTacToeGameRoom", 
+            //    ticTacToeGameRoom,
+            //    username,
+            //    connectionId
+            //);
 
             // 7. Save connection in state
             setConnection(conn);

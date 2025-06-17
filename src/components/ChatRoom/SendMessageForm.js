@@ -11,9 +11,9 @@ const SendMessageForm = ({ sendMessage }) => {
     }}>
 
         <InputGroup className="mb-3">
-            <InputGroup.Text>Chat</InputGroup.Text>
+            <InputGroup.Text data-cy="message-input">Chat</InputGroup.Text>
             <Form.Control onChange={e => setMessage(e.target.value)} value={msg} placeholder="Type your message"></Form.Control>
-            <Button variant="primary" type="submit" disabled={!msg}>Send</Button>
+            <Button data-cy="send-button" variant="primary" type="submit" disabled={!msg}>Send</Button>
         </InputGroup>
 
 

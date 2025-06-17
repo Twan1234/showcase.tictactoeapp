@@ -5,7 +5,7 @@ const MessageContainer = ({ messages }) => {
         {
             messages.map((msg, index) => 
                 <Table striped bordered>
-                    <tr key={index}>
+                    <tr key={index} data-cy="message">
                         <td>{msg.msg} - {msg.username}</td>
                     </tr>
 
