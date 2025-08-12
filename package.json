@@ -20,7 +20,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cy:open": "cypress open --component",
+    "cy:run": "cypress run --component"
   },
   "eslintConfig": {
     "extends": [
@@ -41,6 +43,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.27.1",
     "@cypress/react": "^9.0.1",
     "@cypress/webpack-dev-server": "^4.1.0",
     "cypress": "^14.3.3",
@@ -48,4 +51,5 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
+
 }

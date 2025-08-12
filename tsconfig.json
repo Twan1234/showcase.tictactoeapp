@@ -7,7 +7,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": [ "cypress", "@cypress/react" ]
+    "allowJs": true,
+    "types": [ "cypress", "@cypress/react" ],
+    "jsx": "react"
   },
   "include": [ "cypress/**/*.ts", "**/*.tsx", "cypress", "src" ]
 }

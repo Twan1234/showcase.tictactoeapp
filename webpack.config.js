@@ -1,4 +1,3 @@
-// webpack.config.js
 const path = require('path');
 
 module.exports = {
@@ -8,13 +7,18 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(js|ts|jsx|tsx)$/,
+                test: /\.(js|jsx|ts|tsx)$/,
                 exclude: /node_modules/,
-                use: 'babel-loader',
-            },
-            {
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader'],
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: [
+                            '@babel/preset-env',
+                            '@babel/preset-react',
+                            '@babel/preset-typescript'
+                        ],
+                    },
+                },
             },
         ],
     },
